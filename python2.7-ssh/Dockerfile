@@ -6,7 +6,7 @@ ARG USERPASS=123
 
 # Apt update & apt install required packages
 # whois: required for mkpasswd
-RUN apt update && apt -y install openssh-server whois locales
+RUN apt update && apt -y install openssh-server whois locales vim make 
 
 #timezone
 ENV TZ=Asia/Shanghai \
@@ -43,6 +43,7 @@ RUN chmod 777 /init.sh
 USER $USERNAME
 RUN mkdir /home/$USERNAME/.ssh && touch /home/$USERNAME/.ssh/authorized_keys
 RUN /init.sh  
+RUN /entrypoint.sh
 
 USER root
 RUN  rm /init.sh
