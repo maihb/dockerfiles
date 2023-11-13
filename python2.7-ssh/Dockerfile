@@ -34,8 +34,8 @@ RUN apt purge -y whois && apt -y autoremove && apt -y autoclean && apt -y clean 
 #WORKDIR /home/$USERNAME
 
 # Copy the entrypoint
-COPY entrypoint.sh entrypoint.sh
-RUN chmod +x /entrypoint.sh
+COPY entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
 COPY init.sh init.sh
 RUN chmod 777 /init.sh
 
@@ -43,7 +43,6 @@ RUN chmod 777 /init.sh
 USER $USERNAME
 RUN mkdir /home/$USERNAME/.ssh && touch /home/$USERNAME/.ssh/authorized_keys
 RUN /init.sh  
-RUN /entrypoint.sh
 
 USER root
 RUN  rm /init.sh
@@ -52,5 +51,5 @@ RUN  rm /init.sh
 #VOLUME /etc/ssh
 
 # Run entrypoint
-CMD ["/entrypoint.sh"]
+CMD ["/usr/local/bin/entrypoint.sh"]
 EXPOSE 22
