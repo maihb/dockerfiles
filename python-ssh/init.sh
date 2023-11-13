@@ -10,4 +10,5 @@ echo "alias lsa='ls -lah'" >>~/.bashrc
 echo "alias lt='ls -arhlt'" >>~/.bashrc
 echo "alias t='tail -10f'" >>~/.bashrc
 echo "alias gst='git status'" >>~/.bashrc
+echo "alias py='python'" >>~/.bashrc
 echo "set -o vi" >>~/.bashrc

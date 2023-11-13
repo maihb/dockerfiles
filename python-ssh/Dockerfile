@@ -1,4 +1,4 @@
-FROM python:2.7
+FROM python:latest
 
 # Env & Arg variables
 ARG USERNAME=py
@@ -6,7 +6,7 @@ ARG USERPASS=123
 
 # Apt update & apt install required packages
 # whois: required for mkpasswd
-RUN apt update && apt -y install openssh-server whois locales vim make 
+RUN apt update && apt -y install openssh-server whois locales vim make net-tools
 
 #timezone
 ENV TZ=Asia/Shanghai \
