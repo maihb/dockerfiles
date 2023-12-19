@@ -60,7 +60,7 @@ RUN tar zxf ${go_file} -C /usr/bin &&\
     rm ${go_file}
 #安装 zig 交叉编译工具
 RUN tar -xvf ${zig_file} &&\
-    mv zig-linux-x86_64-0.11.0 /usr/local/zig &&\
+    mv zig-linux-*-0.11.0 /usr/local/zig &&\
     echo 'export PATH=/usr/local/zig:$PATH' >>/etc/profile &&\
     rm ${zig_file}
 
