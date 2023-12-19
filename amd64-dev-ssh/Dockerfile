@@ -47,7 +47,7 @@ RUN wget https://golang.google.cn/dl/go1.20.10.linux-amd64.tar.gz &&\
     rm go1.20.10.linux-amd64.tar.gz
 
 #安装 zig 交叉编译工具
-RUN https://ziglang.org/download/0.11.0/zig-linux-x86_64-0.11.0.tar.xz &&\
+RUN wget https://ziglang.org/download/0.11.0/zig-linux-x86_64-0.11.0.tar.xz &&\
     tar -xvf zig-linux-x86_64-0.11.0.tar.xz &&\
     mv zig-linux-x86_64-0.11.0 /usr/local/zig &&\
     echo 'export PATH=/usr/local/zig:$PATH' >>/etc/profile &&\
