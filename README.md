@@ -4,6 +4,9 @@
 ## 启动命令
 
 ```sh
+git clone https://github.com/maihb/dockerfiles.git
+cd dockerfiles
+
 #python-latest
 docker build -t maihb/py-ssh python-ssh
 docker run -d --name py -p 6022:22 maihb/py-ssh
