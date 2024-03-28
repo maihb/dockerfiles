@@ -1,7 +1,4 @@
 FROM ubuntu:16.04
-#时区
-ENV TZ=Asia/Shanghai \
-    DEBIAN_FRONTEND=noninteractive
 
 #中文
 ENV LANG=zh_CN.utf8 \
@@ -32,15 +29,15 @@ WORKDIR /
 RUN apt update && apt -y install openssh-server whois tzdata language-pack-zh-hans wget \
     vim make git gcc g++ libcurl4-gnutls-dev libjpeg-dev zlib1g-dev mingw-w64 xz-utils zip
 
-# Add a non-root user & set password
-RUN useradd -ms /bin/bash $USERNAME
-RUN usermod --password $(echo "$USERPASS" | mkpasswd -s) $USERNAME
-#timezone
-
+#时区
+ENV TZ=Asia/Shanghai
 RUN ln -fs /usr/share/zoneinfo/${TZ} /etc/localtime &&\
     echo ${TZ} > /etc/timezone &&\
     dpkg-reconfigure --frontend noninteractive tzdata 
 
+# Add a non-root user & set password
+RUN useradd -ms /bin/bash $USERNAME
+RUN usermod --password $(echo "$USERPASS" | mkpasswd -s) $USERNAME
 
 # 下载对应平台安装包
 ARG zig_file=zig.tar.xz
