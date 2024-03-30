@@ -1,4 +1,4 @@
-imName='m_mysql:5.7'
+imName='mysql:local'
 insName="sql"
 docker rm -f $insName -v
 docker rmi $imName

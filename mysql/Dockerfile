@@ -13,6 +13,8 @@ LABEL version="0.1" description="Mysql服务器" by="mhb"
 #将所需文件放到容器中
 COPY sql /mysql
 COPY setup.sh /mysql/
+# RUN mysql </mysql/init.sql && mysql </mysql/privileges.sql
+
 
 #设置容器启动时执行的命令
-CMD ["sh", "/mysql/setup.sh"]
+# CMD ["sh", "/mysql/setup.sh"]
