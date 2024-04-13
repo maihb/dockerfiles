@@ -6,6 +6,8 @@ sudo apt install -y docker-compose
 docker-compose build
 docker-compose up -d
 docker logs -f sql
+
+# 测试连接（la 为目标机器，修改hosts）： mysql -utest -h la -p123456
 ```
 
 或者直接一行命令运行, 不好初始化，暂时放弃
