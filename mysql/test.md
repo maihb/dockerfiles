@@ -2,7 +2,7 @@ docker-compose
 ```sh
 #安装 docker-compose
 sudo apt install -y docker-compose
-
+#删除重来: dk rm -f  sql;dk rmi mysql:local
 docker-compose build
 docker-compose up -d
 docker logs -f sql
