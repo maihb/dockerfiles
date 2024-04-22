@@ -7,7 +7,7 @@ docker-compose
 ```sh
 #删除重来: dk rm -f  sql;dk rmi mysql:local
 docker-compose build
-docker-compose up -d
+docker-compose up -d --force-recreate
 docker logs -f sql
 
 # 测试连接（la 为目标机器，修改hosts）： mysql -utest -h la -p123456
