@@ -1,7 +1,10 @@
 FROM alpine:latest
 
-RUN apk add --no-cache openssh-server shadow miniserve
+RUN apk add --no-cache openssh-server shadow miniserve tzdata
 RUN cd /etc/ssh && ssh-keygen -A
+
+# 时区
+RUN cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
 
 # set password
 RUN echo "root:123" | chpasswd
