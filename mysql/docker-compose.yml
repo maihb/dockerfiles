@@ -5,15 +5,15 @@ services:
     container_name: sql
     build: .
     volumes:
-      - /data/mysql/data:/var/lib/mysql
       - ./init:/docker-entrypoint-initdb.d/:ro
+      - /data/mysql/data:/var/lib/mysql
       - ./sql:/opt/sql:ro
     environment:
       - MYSQL_ROOT_PASSWORD_FILE=/run/secrets/db_root_password
     ports:
       - "3306:3306"
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-utest", "-p123456"]
+      test: ["CMD", "mysqladmin", "ping", "-uping"]
       interval: 10s
       timeout: 5s
       retries: 5
