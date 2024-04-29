@@ -11,7 +11,6 @@ server-id = 2
 pid-file    = /var/run/mysqld/mysqld.pid
 socket        = /var/run/mysqld/mysqld.sock
 datadir        = /var/lib/mysql
-#log-error    = /var/lib/mysql/error.log
 # By default we only accept connections from localhost
 #bind-address    = 127.0.0.1
 # Disabling symbolic-links is recommended to prevent assorted security risks
@@ -48,7 +47,8 @@ general_log_file=/var/lib/mysql/general.log
 slow_query_log = ON
 slow_query_log_file=/var/lib/mysql/slowquery.log
 long_query_time=10
-#log-error=/var/lib/mysql/error.log
+#log_error=/var/lib/mysql/error.log
+log_error_verbosity = 2  # 设置为 2 或更高，以确保只记录较重要的错误信息, 默认 3
 log_queries_not_using_indexes = OFF
 log_throttle_queries_not_using_indexes = 0
 #expire_logs_days = 120
