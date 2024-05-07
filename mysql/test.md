@@ -1,19 +1,37 @@
-下载并进入目录
+## 下载并进入目录
 ```sh
 git clone https://github.com/maihb/dockerfiles.git && cd dockerfiles/mysql
-
 ```
-docker-compose   
+
+### 测试连接（la 为目标机器，修改hosts）：
+mysql -utest -h la -p123456
+
+## compose 启动
 ```sh
-# 删除重来: dk rm -f  sql;dk rmi mysql:local
-# docker-compose build
 docker-compose up -d
 docker logs -f sql
-
-# 测试连接（la 为目标机器，修改hosts）： mysql -utest -h la -p123456
+#修改 mysql 的 root 密码
+docker exec -it sql mysqladmin -uroot -p password
 ```
 
-或者直接一行命令运行, 不好初始化，暂时放弃
+## stack 启动服务  
+```sh
+# secret
+docker swarm init #再次查看 docker swarm join-token manager
+docker secret create db_root_password db_root_password.txt
+# 删除重来: dk rm -f  sql;dk rmi mysql:local
+# docker-compose build
+docker build . -t mysql:local
+mkdir -p /data/mysql && docker stack deploy st -c docker-compose.yml
+
+#等初始化完成，可以删掉 root 密码 没用，会启动不了
+#docker service update --secret-rm db_root_password  st_mysql
+
+#查看服务器启动情况
+docker service ps  st_mysql --no-trunc
+```
+
+## 或者直接一行命令运行, 不好初始化，暂时放弃
 ```sh
 # /var/log/mysql       目录，用于存储 MySQL 的日志文件。
 # /var/lib/mysql       目录，用于存储 MySQL 的数据文件。
