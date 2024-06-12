@@ -1,5 +1,4 @@
-# clone
-git clone https://github.com/wurstmeister/kafka-docker.git && cd kafka-docker
+# from https://github.com/segmentio/kafka-go.git
 # 启动
 docker-compose up -d
 docker-compose ps
