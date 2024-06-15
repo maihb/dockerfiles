@@ -10,15 +10,16 @@ sysctl vm.max_map_count && sudo sysctl -w vm.max_map_count=262144
 sudo sysctl -p && sysctl vm.max_map_count
 
 # 创建文件目录
-sudo mkdir -p /data && sudo chown "$(whoami):root" /data
+sudo mkdir -p /data && sudo chown "$(whoami):0" /data
 mkdir -p /data/elasticsearch/{config,data,logs,plugins}
-sudo chown -R "$(whoami):root" /data/elasticsearch/*
-sudo chmod -R g+rwx /data/elasticsearch/*
+sudo chown -R "$(whoami):0" /data/elasticsearch/*
 # 如果之前没有映射目录需要备份之前数据
 docker cp es01:/usr/share/elasticsearch/config /data/elasticsearch
 docker cp es01:/usr/share/elasticsearch/logs /data/elasticsearch
 docker cp es01:/usr/share/elasticsearch/data /data/elasticsearch
 docker cp es01:/usr/share/elasticsearch/plugins /data/elasticsearch
+sudo chown -R "$(whoami):0" /data/elasticsearch/*
+sudo chmod -R g+rwx /data/elasticsearch/*
 # 可以不用配置，用默认
 cat > /data/elasticsearch/config/elasticsearch.yml <<EOF
 cluster.name: "docker-cluster"
@@ -39,10 +40,10 @@ docker run -dit --name es01 \
     -v /data/elasticsearch/logs:/usr/share/elasticsearch/logs \
     -v /data/elasticsearch/data:/usr/share/elasticsearch/data \
     -v /data/elasticsearch/plugins:/usr/share/elasticsearch/plugins \
+    -v /data/elasticsearch/config:/usr/share/elasticsearch/config \
     docker.elastic.co/elasticsearch/elasticsearch:8.14.1
 
 # 暂时用默认配置
-    -v /data/elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml \
 ```
 ## 02 安装kibana （管理页面）
 
