@@ -12,12 +12,13 @@ sudo sysctl -p && sysctl vm.max_map_count
 # 创建文件目录
 sudo mkdir -p /data && sudo chown "$(whoami):root" /data
 mkdir -p /data/elasticsearch/{config,data,logs,plugins}
+sudo chown -R "$(whoami):root" /data/elasticsearch/*
+sudo chmod -R g+rwx /data/elasticsearch/*
 # 如果之前没有映射目录需要备份之前数据
 docker cp es01:/usr/share/elasticsearch/config /data/elasticsearch
 docker cp es01:/usr/share/elasticsearch/logs /data/elasticsearch
 docker cp es01:/usr/share/elasticsearch/data /data/elasticsearch
 docker cp es01:/usr/share/elasticsearch/plugins /data/elasticsearch
-sudo chown -R opc:root /data/elasticsearch/*
 # 可以不用配置，用默认
 cat > /data/elasticsearch/config/elasticsearch.yml <<EOF
 cluster.name: "docker-cluster"
