@@ -6,7 +6,7 @@ services:
     build: . # stack  不支持
     volumes:
       - ./init:/docker-entrypoint-initdb.d/:ro
-      - /data/mysql:/var/lib/mysql
+      - /data/mysql:/var/lib/mysql # 注意，当这个目录为空的时候，才会运行 init.sql
       - ./sql:/opt/sql:ro
     secrets:
       - db_root_password
