@@ -1,5 +1,6 @@
 from flask import Flask, request, Response
-import subprocess
+import qrcode 
+import io 
 
 app = Flask(__name__)
 
@@ -8,10 +9,12 @@ app = Flask(__name__)
 def generate_qr():
     data = request.args.get('data')
     if data:
-        # 调用 qrencode 命令生成二维码
-        cmd = ['qrencode', '-t', 'PNG', '-o', '-', data]
-        result = subprocess.run(cmd, stdout=subprocess.PIPE)
-        return Response(result.stdout, mimetype='image/png')
+        img = qrcode.make(data=data)
+        # 将二维码图像保存到字节流中
+        img_io = io.BytesIO()
+        img.save(img_io, 'PNG')
+        img_io.seek(0)
+        return Response(img_io, mimetype='image/png')
     else:
         return "请传入需要生成二维码的数据，参数格式: ?data=你的内容"
 
