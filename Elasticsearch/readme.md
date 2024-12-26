@@ -1,8 +1,9 @@
-# es  
+# es
+
 官方安装手册:
 https://www.elastic.co/guide/en/elasticsearch/reference/current/docker.html
 
-## 01 安装es
+## 01 安装 es
 
 ```sh
 # 修改进程可以具有的最大内存映射区域数 (mmap)
@@ -23,7 +24,7 @@ sudo chmod -R g+rwx /data/elasticsearch/*
 # 可以不用配置，用默认
 cat > /data/elasticsearch/config/elasticsearch.yml <<EOF
 cluster.name: "docker-cluster"
-network.hosts:0.0.0.0
+network.hosts: 0.0.0.0
 # 跨域
 http.cors.allow-origin: "*"
 http.cors.enabled: true
@@ -45,7 +46,8 @@ docker run -dit --name es01 \
 
 # 暂时用默认配置
 ```
-## 02 安装kibana （管理页面）
+
+## 02 安装 kibana （管理页面）
 
 ```sh
 docker run -d --name kib01 \
