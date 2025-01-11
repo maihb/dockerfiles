@@ -1,5 +1,5 @@
-# 使用一个轻量级的基础镜像，比如 Debian
-FROM debian:bullseye-slim
+# 第一阶段：编译阶段
+FROM debian:bullseye-slim AS builder
 
 # 安装必要的构建工具和依赖
 RUN apt-get update && \
@@ -9,12 +9,8 @@ RUN apt-get update && \
     wget \
     libpcre3-dev \
     zlib1g-dev \
-    libgd-dev \
-    libgeoip-dev \
-    libmaxminddb-dev \
     clang \
     llvm \
-    libicu-dev \
     make \
     git \
     curl \
@@ -35,34 +31,26 @@ RUN wget http://nginx.org/download/nginx-1.25.2.tar.gz && \
 # 进入 Nginx 源码目录
 WORKDIR /usr/src/nginx/nginx-1.25.2
 
-# 克隆并安装 QUIC 支持的 quiche 库
+# 克隆并编译 QUIC 支持的 quiche
 RUN git clone --recursive https://github.com/cloudflare/quiche /usr/src/quiche && \
     cd /usr/src/quiche && \
-    PATH="$HOME/.cargo/bin:$PATH" cargo build --release && \
-    cd /usr/src/nginx/nginx-1.25.2
+    PATH="$HOME/.cargo/bin:$PATH" cargo build --release
 
-# 配置编译选项，开启 HTTP/3 支持
+# 配置编译选项并构建 Nginx
 RUN ./configure \
     --prefix=/usr/local/nginx \
     --with-http_ssl_module \
     --with-http_v3_module \
     --with-debug \
-    --with-http_gzip_static_module \
-    --with-http_realip_module \
-    --with-http_addition_module \
-    --with-http_sub_module \
-    --with-http_dav_module \
-    --with-http_flv_module \
-    --with-http_mp4_module \
-    --with-http_gunzip_module \
-    --with-http_geoip_module \
-    --with-http_image_filter_module \
-    --with-http_random_index_module \
-    --with-http_secure_link_module \
-    --with-http_stub_status_module \
     --with-cc-opt="-I/usr/src/quiche/include" \
     --with-ld-opt="-L/usr/src/quiche/target/release" && \
     make && make install
+
+# 第二阶段：运行阶段
+FROM debian:bullseye-slim
+
+# 复制运行所需文件
+COPY --from=builder /usr/local/nginx /usr/local/nginx
 
 # 创建 Nginx 用户
 RUN useradd -r -M nginx
@@ -75,7 +63,6 @@ EXPOSE 80
 EXPOSE 443
 EXPOSE 443/udp
 
+# 设置工作目录并启动 Nginx
 WORKDIR /usr/local/nginx/
-
-# 启动 Nginx
 CMD ["sbin/nginx", "-g", "daemon off;"]
