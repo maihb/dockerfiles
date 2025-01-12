@@ -1,0 +1,68 @@
+# 使用官方的 Debian 作为基础镜像
+FROM debian:bullseye-slim as builder
+
+# 设置环境变量
+ENV NGINX_VERSION 1.25.2
+
+# 安装依赖
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    build-essential \
+    libssl-dev \
+    wget \
+    libpcre3 \
+    libpcre3-dev \
+    zlib1g-dev \
+    git \
+    make \
+    openssl \
+    cmake \
+    curl && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+# 下载并构建 BoringSSL
+WORKDIR /usr/src
+RUN git -c http.sslVerify=false clone https://boringssl.googlesource.com/boringssl && \
+    cd boringssl && \
+    mkdir build && \
+    cd build && \
+    cmake .. && \
+    make
+
+# 下载 Nginx 源码
+RUN wget http://nginx.org/download/nginx-${NGINX_VERSION}.tar.gz && \
+    tar -zxvf nginx-${NGINX_VERSION}.tar.gz && \
+    rm nginx-${NGINX_VERSION}.tar.gz
+
+# 构建 Nginx
+WORKDIR /usr/src/nginx-${NGINX_VERSION}
+RUN ./configure \
+    --with-debug \
+    --with-http_v3_module \
+    --with-cc-opt="-I/usr/src/boringssl/include" \
+    --with-ld-opt="-L/usr/src/boringssl/build/ssl -L/usr/src/boringssl/build/crypto" && \
+    make && \
+    make install
+
+# 使用一个更小的基础镜像来运行 Nginx
+FROM debian:bullseye-slim
+
+# 复制构建好的 Nginx 和 BoringSSL
+COPY --from=builder /usr/local/nginx /usr/local/nginx
+COPY --from=builder /usr/src/boringssl/build/ssl/libssl.a /usr/local/lib/
+COPY --from=builder /usr/src/boringssl/build/crypto/libcrypto.a /usr/local/lib/
+
+# 安装运行时依赖
+RUN apt-get update && \
+    apt-get install -y \
+    libpcre3 \
+    zlib1g \
+    libssl1.1 \
+    && rm -rf /var/lib/apt/lists/*
+
+# 暴露端口
+EXPOSE 80 443
+
+# 启动 Nginx
+CMD ["/usr/local/nginx/sbin/nginx", "-g", "daemon off;"]

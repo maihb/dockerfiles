@@ -1,62 +1,72 @@
-# 第一阶段：编译阶段
-FROM debian:bullseye-slim AS builder
+# 使用官方的 Nginx 镜像作为基础镜像
+FROM nginx:stable-alpine as build
 
-# 安装必要的构建工具和依赖
-RUN apt-get update && \
-    apt-get install -y \
-    build-essential \
-    libssl-dev \
-    wget \
-    libpcre3-dev \
-    zlib1g-dev \
-    clang \
-    llvm \
-    make \
+# 安装依赖
+RUN apk update && apk add --no-cache \
+    build-base \
     git \
+    bash \
+    wget \
     curl \
-    cmake && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+    zlib-dev \
+    pcre-dev \
+    openssl \
+    openssl-dev \
+    libxslt-dev \
+    gd-dev \
+    libc-dev \
+    cmake
 
-# 安装 Rust 工具链
-RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y && \
-    export PATH="$HOME/.cargo/bin:$PATH" && \
-    rustup default stable
+RUN mkdir -p "/ssl" && cd /ssl && \
+    openssl genrsa -out server.key 2048 && \
+    openssl req -new -key server.key -out server.csr -subj "/C=CN/ST=Beijing/L=Beijing/O=MyCompany/OU=IT/CN=abc.tech/emailAddress=admin@abc.tech" && \
+    openssl x509 -req -days 3650 -in server.csr -signkey server.key -out server.crt
 
-# 下载并解压 Nginx 源码
-WORKDIR /usr/src/nginx
-RUN wget http://nginx.org/download/nginx-1.25.2.tar.gz && \
-    tar -zxvf nginx-1.25.2.tar.gz
+# 获取并编译 BoringSSL
+WORKDIR /tmp
+RUN git clone https://github.com/google/boringssl.git && \
+    cd boringssl && \
+    cmake . && \
+    make -j$(nproc) && \
+    make install
 
-# 进入 Nginx 源码目录
-WORKDIR /usr/src/nginx/nginx-1.25.2
+# 获取 Nginx 源代码
+WORKDIR /tmp
+RUN wget https://nginx.org/download/nginx-1.27.3.tar.gz && \
+    tar -zxvf nginx-1.27.3.tar.gz 
 
-# 克隆并编译 QUIC 支持的 quiche
-RUN git clone --recursive https://github.com/cloudflare/quiche /usr/src/quiche && \
-    cd /usr/src/quiche && \
-    PATH="$HOME/.cargo/bin:$PATH" cargo build --release
-
-# 配置编译选项并构建 Nginx
+# 编译 Nginx 并启用 QUIC 和 HTTP/3 模块
+WORKDIR /tmp/nginx-1.27.3
 RUN ./configure \
-    --prefix=/usr/local/nginx \
-    --with-http_ssl_module \
-    --with-http_v3_module \
     --with-debug \
-    --with-cc-opt="-I/usr/src/quiche/include" \
-    --with-ld-opt="-L/usr/src/quiche/target/release" && \
-    make && make install
+    --conf-path=/etc/nginx/nginx.conf \
+    --with-http_v3_module \
+    --with-http_v2_module \
+    --with-cc-opt="-I/tmp/boringssl/include" \
+    --with-ld-opt="-L/tmp/boringssl/build/ssl -L/tmp/boringssl/build/crypto" && \
+    make -j$(nproc) && \
+    make install
 
-# 第二阶段：运行阶段
-FROM debian:bullseye-slim
+# 使用 nginx:stable-alpine 作为运行时镜像
+FROM nginx:stable-alpine
 
-# 复制运行所需文件
-COPY --from=builder /usr/local/nginx /usr/local/nginx
+# 安装 BoringSSL 运行时依赖
+RUN apk add --no-cache \
+    libssl1.1 \
+    libcrypto1.1
 
-# 创建 Nginx 用户
-RUN useradd -r -M nginx
+# 将编译后的 Nginx 安装内容复制到新的镜像中
+COPY --from=build /usr/local/nginx /usr/local/nginx
+COPY --from=build /usr/local/bin/nginx /usr/local/bin/nginx
+COPY --from=build /usr/local/sbin/nginx /usr/local/sbin/nginx
+COPY --from=build /etc/nginx /etc/nginx
+COPY --from=builder /ssl /ssl
 
-# 复制 Nginx 配置文件
-COPY nginx.conf /usr/local/nginx/conf/nginx.conf
+# 将 BoringSSL 动态库复制到目标容器中
+COPY --from=build /usr/local/lib /usr/local/lib
+
+# 复制 Nginx 配置文件（假设你已经配置好了）
+COPY nginx.conf /etc/nginx/nginx.conf
 
 # 暴露端口
 EXPOSE 80
@@ -64,5 +74,5 @@ EXPOSE 443
 EXPOSE 443/udp
 
 # 设置工作目录并启动 Nginx
-WORKDIR /usr/local/nginx/
-CMD ["sbin/nginx", "-g", "daemon off;"]
+WORKDIR /
+CMD ["nginx", "-g", "daemon off;"]
