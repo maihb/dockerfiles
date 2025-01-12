@@ -1,0 +1,38 @@
+
+FROM ubuntu:jammy as builder
+
+RUN apt-get update
+RUN apt-get install build-essential cmake libpcre3 libpcre3-dev  openssl libssl-dev  zlib1g-dev git wget software-properties-common -y
+RUN add-apt-repository ppa:longsleep/golang-backports -y
+RUN apt-get update
+RUN apt-get install golang-go -y
+
+
+RUN git clone --depth=1 https://github.com/google/boringssl.git
+
+RUN cd boringssl && \
+    mkdir build && cd build && \
+    cmake .. && make && cd ../../
+
+RUN wget https://nginx.org/download/nginx-1.25.2.tar.gz
+RUN tar xf nginx-1.25.2.tar.gz
+
+RUN cd nginx-1.25.2 && ./configure  \
+    --prefix=/usr/local/nginx \
+    --conf-path=/etc/nginx/nginx.conf \
+    --with-debug \
+    --with-http_v3_module \
+    --with-http_v2_module \
+    --with-cc-opt="-I../boringssl/include"    \
+    --with-ld-opt="-L../boringssl/build/ssl  -L../boringssl/build/crypto" && \
+    make && make install
+
+
+FROM ubuntu:jammy
+
+COPY --from=builder /usr/local/nginx  /usr/local/nginx
+COPY nginx.conf /etc/nginx/nginx.conf
+
+EXPOSE 80 443
+
+CMD ["/usr/local/nginx/sbin/nginx", "-g", "daemon off;"]
