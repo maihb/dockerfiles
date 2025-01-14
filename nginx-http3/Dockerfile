@@ -270,7 +270,7 @@ RUN \
     && ln -sf /dev/stderr /var/log/nginx/error.log
 
 COPY nginx.conf /etc/nginx/nginx.conf
-COPY ssl_common.conf /etc/nginx/conf.d/ssl_common.conf
+COPY ./ssl /ssl
 
 # show env
 RUN env | sort
@@ -281,7 +281,7 @@ RUN njs -v
 # test the configuration
 RUN nginx -V; nginx -t
 
-EXPOSE 8080 8443
+EXPOSE 80 443 443/udp
 
 STOPSIGNAL SIGTERM
 
