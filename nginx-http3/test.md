@@ -1,4 +1,4 @@
-## build
+## build 参考：https://github.com/macbre/docker-nginx-http3
 
 ```sh
 docker rm -f ng && docker rmi nginx-http3
