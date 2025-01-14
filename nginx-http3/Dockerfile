@@ -271,7 +271,6 @@ RUN \
     && ln -sf /dev/stderr /var/log/nginx/error.log
 
 COPY nginx.conf /etc/nginx/nginx.conf
-COPY ./ssl /ssl
 
 # show env
 RUN env | sort
