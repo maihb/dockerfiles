@@ -14,7 +14,6 @@ docker run -dit --name ng \
   --restart=unless-stopped \
   -v ./ssl:/ssl \
   -p 80:80 \
-  -p 443:443/udp \
   nginx-http3
 
 # 测试  --成功
