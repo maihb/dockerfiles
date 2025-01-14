@@ -266,6 +266,7 @@ RUN \
     # forward request and error logs to docker log collector
     && mkdir /var/log/nginx \
     && touch /var/log/nginx/access.log /var/log/nginx/error.log \
+    && touch /var/run/nginx.pid \
     && ln -sf /dev/stdout /var/log/nginx/access.log \
     && ln -sf /dev/stderr /var/log/nginx/error.log
 
@@ -287,9 +288,8 @@ STOPSIGNAL SIGTERM
 
 # prepare to switching to non-root - update file permissions of directory containing
 # nginx.lock and nginx.pid file
-RUN \
-    chown -R --verbose nginx:nginx \
-    /var/run/nginx/
+RUN chown -R --verbose nginx:nginx  /var/run/nginx/
+RUN chown -R --verbose nginx:nginx  /var/run/nginx.pid
 
 USER nginx
 CMD ["nginx", "-g", "daemon off;"]
