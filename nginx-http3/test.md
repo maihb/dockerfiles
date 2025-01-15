@@ -10,5 +10,5 @@ docker run -dit --name nx \
   nginx-http3
 
 # 测试  --成功
-docker run -t --rm --user root alpine/curl-http3 sh -c 'addr=csgo.com;echo 140.245.61.230 $addr >>/etc/hosts && curl -v -k --http3 https://$addr'
+docker run -t --rm --user root --net host alpine/curl-http3 sh -c 'addr=csgo.com;echo 127.0.0.1 $addr >>/etc/hosts && curl -v -k --http3 https://$addr'
 ```

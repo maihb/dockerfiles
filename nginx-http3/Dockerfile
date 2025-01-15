@@ -299,4 +299,5 @@ RUN chown -R --verbose nginx:nginx  /var/run/nginx.pid
 
 USER nginx
 WORKDIR /
-CMD ["nginx", "-g", "daemon off;"]
+ENTRYPOINT ["nginx"]
+CMD ["-g", "daemon off;"]
