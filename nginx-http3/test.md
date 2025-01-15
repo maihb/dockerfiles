@@ -1,11 +1,10 @@
 ## build 参考：https://github.com/macbre/docker-nginx-http3
 
 ```sh
-docker rm -f ng && docker rmi nginx-http3
+docker rm -f nx && docker rmi nginx-http3
 docker build -t nginx-http3 .
-docker run -dit --name ng \
+docker run -dit --name nx \
   --restart=unless-stopped \
-  -v ./ssl:/ssl \
   -p 80:80 \
   -p 443:443/udp \
   nginx-http3
