@@ -285,10 +285,18 @@ EXPOSE 80 443 443/udp
 
 STOPSIGNAL SIGTERM
 
+WORKDIR /ssl
+RUN apk add --no-cache openssl && openssl genrsa -out server.key 2048 && \
+    openssl req -new -key server.key -out server.csr -subj "/C=CN/ST=Beijing/L=Beijing/O=MyCompany/OU=IT/CN=abc.tech/emailAddress=admin@abc.tech" && \
+    openssl x509 -req -days 3650 -in server.csr -signkey server.key -out server.crt && \
+    apk del openssl
+
 # prepare to switching to non-root - update file permissions of directory containing
 # nginx.lock and nginx.pid file
 RUN chown -R --verbose nginx:nginx  /var/run/nginx/
 RUN chown -R --verbose nginx:nginx  /var/run/nginx.pid
+RUN chown -R --verbose nginx:nginx  /ssl
 
 USER nginx
+WORKDIR /
 CMD ["nginx", "-g", "daemon off;"]
