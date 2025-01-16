@@ -297,7 +297,8 @@ STOPSIGNAL SIGTERM
 RUN chown -R --verbose nginx:nginx  /var/run/nginx/
 RUN chown -R --verbose nginx:nginx  /var/run/nginx.pid
 
-USER nginx
+# 还是用root 运行吧， 有的证书权限是 600 nginx 用户打不开
+# USER nginx
 WORKDIR /
 ENTRYPOINT ["nginx"]
 CMD ["-g", "daemon off;"]
