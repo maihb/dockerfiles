@@ -300,4 +300,5 @@ RUN chown -R --verbose nginx:nginx  /var/run/nginx.pid
 # 还是用root 运行吧， 有的证书权限是 600 nginx 用户打不开
 # USER nginx
 WORKDIR /
-CMD ["nginx", "-g", "daemon off;"]
+ENTRYPOINT [ "nginx" ]
+CMD [ "-g", "daemon off;"]
